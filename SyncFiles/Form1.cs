@@ -99,13 +99,13 @@ namespace SyncFiles
                     //Check first last write criteria
                     if (sourceFile.LastWriteTimeUtc != destFile.LastWriteTimeUtc)
                     {
-                        diff = new FileDiff() { Source = sourceFile, Destination = destFile, DifferenceType = DiffType.DifferentLastModified };
+                        diff = new FileDiff() { Source = sourceFile, Destination = destFile, DifferenceType = DiffType.DifferentLastModified, ItemType = ItemType.File };
                         AllDifferences.Add(diff);
                         allDestFileChilds.Remove(destFile); //Remove as it was accounted for
                     }
                     else if (sourceFile.Length != destFile.Length)
                     {
-                        diff = new FileDiff() { Source = sourceFile, Destination = destFile, DifferenceType = DiffType.DifferentSize };
+                        diff = new FileDiff() { Source = sourceFile, Destination = destFile, DifferenceType = DiffType.DifferentSize, ItemType = ItemType.File };
                         AllDifferences.Add(diff);
                         allDestFileChilds.Remove(destFile); //Remove as it was accounted for
                     }
@@ -118,7 +118,7 @@ namespace SyncFiles
                 else //file with same name does not exist
                 {
                     //No match means only exists at source, no need to remove from dest as it does not exist
-                    diff = new FileDiff() { Source = sourceFile, DifferenceType = DiffType.ExistInSourceOnly };
+                    diff = new FileDiff() { Source = sourceFile, DifferenceType = DiffType.ExistInSourceOnly, ItemType = ItemType.File };
                     AllDifferences.Add(diff);
                 }
             }
@@ -126,7 +126,7 @@ namespace SyncFiles
             //All the rest that exist in Destination means they do not exist in source
             foreach (var destFile in allDestFileChilds)
             {
-                diff = new FileDiff() { Destination = destFile, DifferenceType = DiffType.ExistInDestinationOnly };
+                diff = new FileDiff() { Destination = destFile, DifferenceType = DiffType.ExistInDestinationOnly, ItemType = ItemType.File };
                 AllDifferences.Add(diff);
             }
 
@@ -136,7 +136,27 @@ namespace SyncFiles
 
             foreach (var sourceDir in allSourceDirChilds)
             {
-                CompareFolder(sourceDir, null);
+                //We have at least one match of name at the same level
+                if (allDestDirChilds.Exists(f => f.Name == sourceDir.Name))
+                {
+                    var destFolder = allDestDirChilds.FirstOrDefault(f => f.Name == sourceDir.Name);
+                    CompareFolder(sourceDir.FullName, destFolder.FullName);
+                    allDestDirChilds.Remove(destFolder);
+                }
+                else //file with same name does not exist
+                {
+                    //No match means only exists at source, no need to remove from dest as it does not exist
+                    diff = new FileDiff() { Source = sourceDir, DifferenceType = DiffType.ExistInSourceOnly, ItemType = ItemType.Folder };
+                    AllDifferences.Add(diff);
+                }
             }
+
+            //All the rest that exist in Destination means they do not exist in source
+            foreach (var destFolder in allDestDirChilds)
+            {
+                diff = new FileDiff() { Destination = destFolder, DifferenceType = DiffType.ExistInDestinationOnly, ItemType = ItemType.Folder };
+                AllDifferences.Add(diff);
+            }
+        }
     }
 }
