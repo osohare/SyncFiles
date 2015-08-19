@@ -73,6 +73,7 @@
             this.txtFolder1.Name = "txtFolder1";
             this.txtFolder1.Size = new System.Drawing.Size(413, 20);
             this.txtFolder1.TabIndex = 3;
+            this.txtFolder1.Text = "M:";
             // 
             // txtFolder2
             // 
@@ -80,6 +81,7 @@
             this.txtFolder2.Name = "txtFolder2";
             this.txtFolder2.Size = new System.Drawing.Size(413, 20);
             this.txtFolder2.TabIndex = 4;
+            this.txtFolder2.Text = "F:";
             // 
             // btnFolder2
             // 
