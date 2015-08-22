@@ -46,7 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DirectoryCompare.cs" />
+    <Compile Include="FileSystemCompare.cs" />
     <Compile Include="FileCompare.cs" />
     <Compile Include="FileDiff.cs" />
     <Compile Include="Form1.cs">

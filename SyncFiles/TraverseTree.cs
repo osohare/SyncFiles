@@ -13,7 +13,16 @@ namespace SyncFiles
 {
     public class TraverseTree
     {
+        private string SourceRootFolder { get; set; }
+        private string DestinationRootFolder { get; set; }
         private ConcurrentBag<FileDiff> AllDifferences { get; set; }
+
+        public IEnumerable<FileDiff> Differences
+        {
+            get { return AllDifferences; }
+        }
+
+        public int TotalDirectories { get; private set; }
 
         public TraverseTree()
         {
@@ -22,33 +31,64 @@ namespace SyncFiles
 
         public void Compare(string source, string destination)
         {
+            SourceRootFolder = source;
+            DestinationRootFolder = destination;
             try
             {
-                TraverseTreeParallelForEach(source, 
-                    (fileCompareAction) =>
+                TraverseTreeParallelForEach(
+                    (sourceDirectory, destinationDirectory) =>
                     {
                         try
                         {
-                            // Do nothing with the data except read it. 
-                            Console.WriteLine(f);
+                            var sourceFiles = sourceDirectory.EnumerateFiles();
+                            var destinationFiles = destinationDirectory.EnumerateFiles();
+
+                            FileSystemCompare compareByName = new FileSystemCompare();
+                            FileCompare comparer = new FileCompare();
+
+                            var onlyInSource = sourceFiles.Except(destinationFiles, compareByName);
+                            var onlyInDest = destinationFiles.Except(sourceFiles, compareByName);
+                            var inBothLists = sourceFiles.Intersect(destinationFiles, compareByName);
+
+                            foreach (var item in onlyInSource)
+                            {
+                                AllDifferences.Add(new FileDiff() {
+                                    Source = item,
+                                    Destination = null,
+                                    DifferenceType = DiffType.ExistInSourceOnly,
+                                    ItemType = ItemType.File
+                                });
+                            }
+                            foreach (var item in onlyInDest)
+                            {
+                                AllDifferences.Add(new FileDiff()
+                                {
+                                    Source = null,
+                                    Destination = item,
+                                    DifferenceType = DiffType.ExistInDestinationOnly,
+                                    ItemType = ItemType.File
+                                });
+                            }
+                            foreach (var item in inBothLists)
+                            {
+                                FileInfo destItem = destinationFiles.FirstOrDefault(x => x.Name == item.Name);
+                                if (!comparer.ExternalCompare(item as FileInfo, destItem))
+                                { 
+                                    AllDifferences.Add(new FileDiff()
+                                    {
+                                        Source = item,
+                                        Destination = destItem,
+                                        DifferenceType = DiffType.Other,
+                                        ItemType = ItemType.File
+                                    });
+                                }
+                            }
                         }
                         catch (FileNotFoundException) { }
                         catch (IOException) { }
                         catch (UnauthorizedAccessException) { }
                         catch (SecurityException) { }
-                    },
-                    (fileCompareAction) =>
-                    {
-                    try
-                    {
-                        // Do nothing with the data except read it. 
-                        Console.WriteLine(f);
                     }
-                    catch (FileNotFoundException) { }
-                    catch (IOException) { }
-                    catch (UnauthorizedAccessException) { }
-                    catch (SecurityException) { }
-                }
                 );
             }
             catch (ArgumentException)
@@ -57,34 +97,78 @@ namespace SyncFiles
             }
         }
 
-        private void TraverseTreeParallelForEach(string root, Action<string> fileCompareAction, Action<string> directoryCompareAction)
+        private string TranslateDirectoryPath(string path)
+        {
+            var fileUri = new Uri(path);
+            var referenceUri = new Uri(SourceRootFolder);
+            var sourceRelativePath = referenceUri.MakeRelativeUri(fileUri).ToString();
+            var destPath = new Uri(new Uri(DestinationRootFolder), sourceRelativePath);
+
+            var destinationFullPath = destPath.LocalPath;
+            return destinationFullPath;
+        }
+
+        /// <summary>
+        /// https://msdn.microsoft.com/en-us/library/ff477033(v=vs.110).aspx
+        /// </summary>
+        /// <param name="directoryCompareAction"></param>
+        private void TraverseTreeParallelForEach(Action<DirectoryInfo, DirectoryInfo> directoryCompareAction)
         {
             //Count of files traversed and timer for diagnostic output 
-            int fileCount = 0;
+            int directoryCount = 0;
             var sw = Stopwatch.StartNew();
 
             // Determine whether to parallelize file processing on each folder based on processor count. 
             int procCount = Environment.ProcessorCount;
 
             // Data structure to hold names of subfolders to be examined for files.
-            Stack<string> dirs = new Stack<string>();
+            Stack<DirectoryInfo> sourceDirectories = new Stack<DirectoryInfo>();
 
-            if (!Directory.Exists(root))
+            if (!Directory.Exists(SourceRootFolder))
+            {
+                throw new ArgumentException();
+            }
+            if (!Directory.Exists(DestinationRootFolder))
             {
                 throw new ArgumentException();
             }
 
-            dirs.Push(root);
+            directoryCompareAction(new DirectoryInfo(SourceRootFolder), new DirectoryInfo(DestinationRootFolder));
+            sourceDirectories.Push(new DirectoryInfo(SourceRootFolder));
 
-            while (dirs.Count > 0)
+            while (sourceDirectories.Count > 0)
             {
-                string currentDir = dirs.Pop();
-                string[] subDirs = { };
-                string[] files = { };
+                DirectoryInfo sourceDir = sourceDirectories.Pop();
+                DirectoryInfo destinationDir = null;
+                IEnumerable<DirectoryInfo> sourceSubDirs = null;
+                IEnumerable<DirectoryInfo> destinationSubDirs = null;
+                FileSystemCompare compareByName = new FileSystemCompare();
 
                 try
                 {
-                    subDirs = Directory.GetDirectories(currentDir);
+                    var destinationDirString = TranslateDirectoryPath(sourceDir.FullName);
+                    if (Directory.Exists(destinationDirString))
+                    {
+                        destinationDir = new DirectoryInfo(destinationDirString);
+                        sourceSubDirs = sourceDir.EnumerateDirectories();
+                        destinationSubDirs = destinationDir.EnumerateDirectories();
+                        //extract source and dest and compare
+                        var onlyInSource = sourceSubDirs.Except(destinationSubDirs, compareByName);
+                        var onlyInDest = destinationSubDirs.Except(sourceSubDirs, compareByName);
+                        //all exceptions add to list TODO
+
+
+                        //only navigate what exists in both
+                        var inBothLists = sourceSubDirs.Intersect(destinationSubDirs, compareByName);
+                        foreach (var item in inBothLists)
+                        {
+                            sourceDirectories.Push(item as DirectoryInfo);
+                        }
+                    }
+                    else
+                    {
+                        //add to exceptions, destination folder does not exist
+                    }
                 }
                 // Thrown if we do not have discovery permission on the directory. 
                 catch (UnauthorizedAccessException e)
@@ -101,48 +185,16 @@ namespace SyncFiles
 
                 try
                 {
-                    files = Directory.GetFiles(currentDir);
-                }
-                catch (UnauthorizedAccessException e)
-                {
-                    Console.WriteLine(e.Message);
-                    continue;
-                }
-                catch (DirectoryNotFoundException e)
-                {
-                    Console.WriteLine(e.Message);
-                    continue;
-                }
-                catch (IOException e)
-                {
-                    Console.WriteLine(e.Message);
-                    continue;
-                }
-
-                // Execute in parallel if there are enough files in the directory. 
-                // Otherwise, execute sequentially.Files are opened and processed 
-                // synchronously but this could be modified to perform async I/O. 
-                try
-                {
-                    if (files.Length < procCount)
+                    Parallel.ForEach(sourceSubDirs, () => 0, (sourceSubDir, loopState, localCount) =>
                     {
-                        foreach (var file in files)
-                        {
-                            fileCompareAction(file);
-                            fileCount++;
-                        }
-                    }
-                    else
+                        var destinationSubDir = TranslateDirectoryPath(sourceSubDir.FullName);
+                        directoryCompareAction(sourceSubDir, new DirectoryInfo(destinationSubDir));
+                        return (int)++localCount;
+                    },
+                    (c) =>
                     {
-                        Parallel.ForEach(files, () => 0, (file, loopState, localCount) =>
-                        {
-                            fileCompareAction(file);
-                            return (int)++localCount;
-                        },
-                                         (c) => {
-                                             Interlocked.Add(ref fileCount, c);
-                                         });
-                    }
+                        Interlocked.Add(ref directoryCount, c);
+                    });
                 }
                 catch (AggregateException ae)
                 {
@@ -158,15 +210,9 @@ namespace SyncFiles
                         return false;
                     });
                 }
-
-                // Push the subdirectories onto the stack for traversal. 
-                // This could also be done before handing the files. 
-                foreach (string str in subDirs)
-                    dirs.Push(str);
             }
-
-            // For diagnostic purposes.
-            //Console.WriteLine("Processed {0} files in {1} milleseconds", fileCount, sw.ElapsedMilliseconds);
+            TotalDirectories = directoryCount;
         }
+
     }
 }

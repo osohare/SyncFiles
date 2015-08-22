@@ -61,6 +61,8 @@ namespace SyncFiles
 
             TraverseTree traverse = new TraverseTree();
             traverse.Compare(txtFolder1.Text, txtFolder2.Text);
+
+            MessageBox.Show(traverse.Differences.Count() + "");
         }
     }
 }

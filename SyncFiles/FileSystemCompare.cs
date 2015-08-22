@@ -10,11 +10,11 @@ namespace SyncFiles
     // This implementation defines a very simple comparison 
     // between two FileInfo objects. It only compares the name 
     // of the files being compared and their length in bytes. 
-    public class DirectoryCompare : IEqualityComparer<DirectoryInfo>
+    public class FileSystemCompare : IEqualityComparer<FileSystemInfo>
     {
-        public DirectoryCompare() { }
+        public FileSystemCompare() { }
 
-        public bool Equals(DirectoryInfo f1, DirectoryInfo f2)
+        public bool Equals(FileSystemInfo f1, FileSystemInfo f2)
         {
             return (f1.Name == f2.Name);
         }
@@ -24,7 +24,7 @@ namespace SyncFiles
         // also be equal. Because equality as defined here is a simple value equality, not 
         // reference identity, it is possible that two or more objects will produce the same 
         // hash code. 
-        public int GetHashCode(DirectoryInfo fi)
+        public int GetHashCode(FileSystemInfo fi)
         {
             string s = String.Format("{0}", fi.Name);
             return s.GetHashCode();

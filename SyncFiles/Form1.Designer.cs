@@ -73,7 +73,7 @@
             this.txtFolder1.Name = "txtFolder1";
             this.txtFolder1.Size = new System.Drawing.Size(413, 20);
             this.txtFolder1.TabIndex = 3;
-            this.txtFolder1.Text = "M:";
+            this.txtFolder1.Text = "C:\\Users\\Hector\\Source\\Repos\\ioq3";
             // 
             // txtFolder2
             // 
@@ -81,7 +81,7 @@
             this.txtFolder2.Name = "txtFolder2";
             this.txtFolder2.Size = new System.Drawing.Size(413, 20);
             this.txtFolder2.TabIndex = 4;
-            this.txtFolder2.Text = "F:";
+            this.txtFolder2.Text = "C:\\Users\\Hector\\Desktop\\ioq3";
             // 
             // btnFolder2
             // 

@@ -12,8 +12,7 @@ namespace SyncFiles
     {
         ExistInSourceOnly,
         ExistInDestinationOnly,
-        DifferentSize,
-        DifferentLastModified
+        Other
     }
 
     public enum ItemType
