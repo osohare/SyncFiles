@@ -1,4 +1,5 @@
-﻿using SyncFiles.Infrastructure;
+﻿using Equin.ApplicationFramework;
+using SyncFiles.Models;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -68,6 +69,12 @@ namespace SyncFiles
 
             var progressIndicator = new Progress<string>(ReportScanProgress);
             await traverse.Compare(txtFolder1.Text, txtFolder2.Text, progressIndicator);
+
+            List<FileDiff> differences = traverse.Differences;
+            BindingListView<FileDiff> view = new BindingListView<FileDiff>(differences);
+            dataGridView1.DataSource = view;
+
+            view.ApplyFilter(delegate (FileDiff diff) { return diff.DifferenceType != DiffType.LastWritten; });
 
             lblStatus.Text = string.Format("Scanned {0} directories, {1} differences", traverse.TotalDirectories, traverse.Differences.Count());
         }

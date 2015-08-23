@@ -18,9 +18,9 @@ namespace SyncFiles
         private string SourceRootFolder { get; set; }
         private string DestinationRootFolder { get; set; }
         private ConcurrentBag<FileDiff> AllDifferences { get; set; }
-        public IEnumerable<FileDiff> Differences
+        public List<FileDiff> Differences
         {
-            get { return AllDifferences; }
+            get { return AllDifferences.ToList(); }
         }
 
         public int TotalDirectories { get; private set; }
@@ -64,7 +64,7 @@ namespace SyncFiles
                                     AllDifferences.Add(new FileDiff()
                                     {
                                         Source = item,
-                                        Destination = item,
+                                        Destination = null,
                                         DifferenceType = DiffType.ExistInSourceOnly,
                                         ItemType = ItemType.File
                                     });
@@ -73,7 +73,7 @@ namespace SyncFiles
                                 {
                                     AllDifferences.Add(new FileDiff()
                                     {
-                                        Source = item,
+                                        Source = null,
                                         Destination = item,
                                         DifferenceType = DiffType.ExistInDestinationOnly,
                                         ItemType = ItemType.File
@@ -170,7 +170,26 @@ namespace SyncFiles
                         var onlyInSource = sourceSubDirs.Except(destinationSubDirs, compareByName);
                         var onlyInDest = destinationSubDirs.Except(sourceSubDirs, compareByName);
                         //all exceptions add to list TODO
-
+                        foreach (var item in onlyInSource)
+                        {
+                            AllDifferences.Add(new FileDiff()
+                            {
+                                Source = item,
+                                Destination = null,
+                                DifferenceType = DiffType.ExistInSourceOnly,
+                                ItemType = ItemType.Folder
+                            });
+                        }
+                        foreach (var item in onlyInDest)
+                        {
+                            AllDifferences.Add(new FileDiff()
+                            {
+                                Source = null,
+                                Destination = item,
+                                DifferenceType = DiffType.ExistInDestinationOnly,
+                                ItemType = ItemType.Folder
+                            });
+                        }
 
                         //only navigate what exists in both
                         var inBothLists = sourceSubDirs.Intersect(destinationSubDirs, compareByName);
@@ -185,7 +204,7 @@ namespace SyncFiles
                         AllDifferences.Add(new FileDiff()
                         {
                             Source = sourceDir,
-                            Destination = sourceDir,
+                            Destination = null,
                             DifferenceType = DiffType.ExistInSourceOnly,
                             ItemType = ItemType.Folder
                         });

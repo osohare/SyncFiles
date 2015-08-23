@@ -38,6 +38,8 @@
             this.btnSync = new System.Windows.Forms.Button();
             this.lblStatus = new System.Windows.Forms.Label();
             this.fldSynch = new System.Windows.Forms.FolderBrowserDialog();
+            this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
             // btnFolder1
@@ -74,7 +76,7 @@
             this.txtFolder1.Name = "txtFolder1";
             this.txtFolder1.Size = new System.Drawing.Size(413, 20);
             this.txtFolder1.TabIndex = 3;
-            this.txtFolder1.Text = "M:\\";
+            this.txtFolder1.Text = "M:\\Public";
             // 
             // txtFolder2
             // 
@@ -82,7 +84,7 @@
             this.txtFolder2.Name = "txtFolder2";
             this.txtFolder2.Size = new System.Drawing.Size(413, 20);
             this.txtFolder2.TabIndex = 4;
-            this.txtFolder2.Text = "F:\\";
+            this.txtFolder2.Text = "F:\\Hector\\DATA\\Public";
             // 
             // btnFolder2
             // 
@@ -122,11 +124,24 @@
             this.lblStatus.TabIndex = 9;
             this.lblStatus.Text = "Status";
             // 
+            // dataGridView1
+            // 
+            this.dataGridView1.AllowUserToAddRows = false;
+            this.dataGridView1.AllowUserToDeleteRows = false;
+            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView1.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.dataGridView1.Location = new System.Drawing.Point(0, 133);
+            this.dataGridView1.Name = "dataGridView1";
+            this.dataGridView1.ReadOnly = true;
+            this.dataGridView1.Size = new System.Drawing.Size(1262, 714);
+            this.dataGridView1.TabIndex = 10;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(604, 847);
+            this.ClientSize = new System.Drawing.Size(1262, 847);
+            this.Controls.Add(this.dataGridView1);
             this.Controls.Add(this.lblStatus);
             this.Controls.Add(this.btnSync);
             this.Controls.Add(this.btnCompare);
@@ -138,6 +153,7 @@
             this.Controls.Add(this.btnFolder1);
             this.Name = "Form1";
             this.Text = "Super Natallias backup";
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -156,6 +172,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn sourceDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn destinationDataGridViewTextBoxColumn;
         private System.Windows.Forms.FolderBrowserDialog fldSynch;
+        private System.Windows.Forms.DataGridView dataGridView1;
     }
 }
 
