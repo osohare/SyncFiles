@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SyncFiles.Infrastructure;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,6 +15,8 @@ namespace SyncFiles
 {
     public partial class Form1 : Form
     {
+        private TraverseTree traverse = new TraverseTree();
+
         public Form1()
         {
             InitializeComponent();
@@ -51,7 +54,7 @@ namespace SyncFiles
             }
         }
 
-        private void btnCompare_Click(object sender, EventArgs e)
+        private async void btnCompare_Click(object sender, EventArgs e)
         {
             if (!Directory.Exists(txtFolder1.Text))
                 throw new ApplicationException("Directory does not exist");
@@ -59,10 +62,23 @@ namespace SyncFiles
             if (!Directory.Exists(txtFolder2.Text))
                 throw new ApplicationException("Directory does not exist");
 
-            TraverseTree traverse = new TraverseTree();
-            traverse.Compare(txtFolder1.Text, txtFolder2.Text);
+            traverse.ExcludeFolders.Add(@"F:\_Western");
+            traverse.ExcludeFolders.Add(@"M:\.Trash-1000");
+            traverse.ExcludeFolders.Add(@"M:\Natallia\Photos\Lightroom\catalog");
 
-            MessageBox.Show(traverse.Differences.Count() + "");
+            var progressIndicator = new Progress<string>(ReportScanProgress);
+            await traverse.Compare(txtFolder1.Text, txtFolder2.Text, progressIndicator);
+
+            lblStatus.Text = string.Format("Scanned {0} directories, {1} differences", traverse.TotalDirectories, traverse.Differences.Count());
+        }
+
+        private void ReportScanProgress(string value)
+        {
+            //Update the UI to reflect the progress value that is passed back.
+            if (lblStatus.InvokeRequired)
+                lblStatus.BeginInvoke((MethodInvoker) delegate () { lblStatus.Text = value; });
+            else
+                lblStatus.Text = value;
         }
     }
 }

@@ -6,13 +6,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SyncFiles
+namespace SyncFiles.Models
 {
     public enum DiffType
     {
         ExistInSourceOnly,
         ExistInDestinationOnly,
-        Other
+        LastWritten,
+        Lenght
     }
 
     public enum ItemType
@@ -29,4 +30,5 @@ namespace SyncFiles
         public DiffType DifferenceType { get; set; }
         public  ItemType ItemType { get; set; }
     }
+
 }

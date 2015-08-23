@@ -1,4 +1,6 @@
-﻿using System;
+﻿using SyncFiles.Infrastructure;
+using SyncFiles.Models;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -16,85 +18,94 @@ namespace SyncFiles
         private string SourceRootFolder { get; set; }
         private string DestinationRootFolder { get; set; }
         private ConcurrentBag<FileDiff> AllDifferences { get; set; }
-
         public IEnumerable<FileDiff> Differences
         {
             get { return AllDifferences; }
         }
 
         public int TotalDirectories { get; private set; }
+        public List<string> ExcludePattern { get; set; }
+        public List<string> ExcludeFolders { get; set; }
 
         public TraverseTree()
         {
             AllDifferences = new ConcurrentBag<FileDiff>();
+            ExcludePattern = new List<string>();
+            ExcludeFolders = new List<string>();
         }
 
-        public void Compare(string source, string destination)
+        public async Task Compare(string source, string destination, IProgress<string> startDirScan)
         {
-            SourceRootFolder = source;
-            DestinationRootFolder = destination;
-            try
+            await Task.Run(() =>
             {
-                TraverseTreeParallelForEach(
-                    (sourceDirectory, destinationDirectory) =>
-                    {
-                        try
+                SourceRootFolder = source;
+                DestinationRootFolder = destination;
+                try
+                {
+                    TraverseTreeParallelForEach(
+                        (sourceDirectory, destinationDirectory) =>
                         {
-                            var sourceFiles = sourceDirectory.EnumerateFiles();
-                            var destinationFiles = destinationDirectory.EnumerateFiles();
-
-                            FileSystemCompare compareByName = new FileSystemCompare();
-                            FileCompare comparer = new FileCompare();
-
-                            var onlyInSource = sourceFiles.Except(destinationFiles, compareByName);
-                            var onlyInDest = destinationFiles.Except(sourceFiles, compareByName);
-                            var inBothLists = sourceFiles.Intersect(destinationFiles, compareByName);
-
-                            foreach (var item in onlyInSource)
+                            try
                             {
-                                AllDifferences.Add(new FileDiff() {
-                                    Source = item,
-                                    Destination = null,
-                                    DifferenceType = DiffType.ExistInSourceOnly,
-                                    ItemType = ItemType.File
-                                });
-                            }
-                            foreach (var item in onlyInDest)
-                            {
-                                AllDifferences.Add(new FileDiff()
+                                startDirScan.Report(string.Format("Comparing {0} :: {1}", TotalDirectories, sourceDirectory.FullName));
+
+                                var sourceFiles = sourceDirectory.EnumerateFiles();
+                                var destinationFiles = destinationDirectory.EnumerateFiles();
+
+                                FileSystemCompare compareByName = new FileSystemCompare();
+                                FileCompare comparer = new FileCompare();
+
+                                var onlyInSource = sourceFiles.Except(destinationFiles, compareByName);
+                                var onlyInDest = destinationFiles.Except(sourceFiles, compareByName);
+                                var inBothLists = sourceFiles.Intersect(destinationFiles, compareByName);
+
+                                foreach (var item in onlyInSource)
                                 {
-                                    Source = null,
-                                    Destination = item,
-                                    DifferenceType = DiffType.ExistInDestinationOnly,
-                                    ItemType = ItemType.File
-                                });
-                            }
-                            foreach (var item in inBothLists)
-                            {
-                                FileInfo destItem = destinationFiles.FirstOrDefault(x => x.Name == item.Name);
-                                if (!comparer.ExternalCompare(item as FileInfo, destItem))
-                                { 
                                     AllDifferences.Add(new FileDiff()
                                     {
                                         Source = item,
-                                        Destination = destItem,
-                                        DifferenceType = DiffType.Other,
+                                        Destination = item,
+                                        DifferenceType = DiffType.ExistInSourceOnly,
                                         ItemType = ItemType.File
                                     });
                                 }
+                                foreach (var item in onlyInDest)
+                                {
+                                    AllDifferences.Add(new FileDiff()
+                                    {
+                                        Source = item,
+                                        Destination = item,
+                                        DifferenceType = DiffType.ExistInDestinationOnly,
+                                        ItemType = ItemType.File
+                                    });
+                                }
+                                foreach (var item in inBothLists)
+                                {
+                                    FileInfo destItem = destinationFiles.FirstOrDefault(x => x.Name == item.Name);
+                                    if (!comparer.ExternalCompare(item as FileInfo, destItem))
+                                    {
+                                        AllDifferences.Add(new FileDiff()
+                                        {
+                                            Source = item,
+                                            Destination = destItem,
+                                            DifferenceType = item.LastWriteTimeUtc.Equals(destItem.LastWriteTimeUtc) ? DiffType.Lenght : DiffType.LastWritten,
+                                            ItemType = ItemType.File
+                                        });
+                                    }
+                                }
                             }
+                            catch (FileNotFoundException) { }
+                            catch (IOException) { }
+                            catch (UnauthorizedAccessException) { }
+                            catch (SecurityException) { }
                         }
-                        catch (FileNotFoundException) { }
-                        catch (IOException) { }
-                        catch (UnauthorizedAccessException) { }
-                        catch (SecurityException) { }
-                    }
-                );
-            }
-            catch (ArgumentException)
-            {
-                Console.WriteLine(string.Format("The directory {0} does not exist", source));
-            }
+                    );
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine(string.Format("The directory {0} does not exist", source));
+                }
+            });
         }
 
         private string TranslateDirectoryPath(string path)
@@ -103,8 +114,7 @@ namespace SyncFiles
             var referenceUri = new Uri(SourceRootFolder);
             var sourceRelativePath = referenceUri.MakeRelativeUri(fileUri).ToString();
             var destPath = new Uri(new Uri(DestinationRootFolder), sourceRelativePath);
-
-            var destinationFullPath = destPath.LocalPath;
+            var destinationFullPath = Uri.UnescapeDataString(destPath.LocalPath);
             return destinationFullPath;
         }
 
@@ -147,7 +157,11 @@ namespace SyncFiles
                 try
                 {
                     var destinationDirString = TranslateDirectoryPath(sourceDir.FullName);
-                    if (Directory.Exists(destinationDirString))
+                    if (ExcludeFolders.Contains(destinationDirString) || ExcludeFolders.Contains(sourceDir.FullName))
+                    {
+                        continue;
+                    }
+                    else if (Directory.Exists(destinationDirString))
                     {
                         destinationDir = new DirectoryInfo(destinationDirString);
                         sourceSubDirs = sourceDir.EnumerateDirectories();
@@ -168,6 +182,13 @@ namespace SyncFiles
                     else
                     {
                         //add to exceptions, destination folder does not exist
+                        AllDifferences.Add(new FileDiff()
+                        {
+                            Source = sourceDir,
+                            Destination = sourceDir,
+                            DifferenceType = DiffType.ExistInSourceOnly,
+                            ItemType = ItemType.Folder
+                        });
                     }
                 }
                 // Thrown if we do not have discovery permission on the directory. 
@@ -195,6 +216,7 @@ namespace SyncFiles
                     {
                         Interlocked.Add(ref directoryCount, c);
                     });
+                    TotalDirectories = directoryCount;
                 }
                 catch (AggregateException ae)
                 {

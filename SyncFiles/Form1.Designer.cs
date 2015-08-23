@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.fldSynch = new System.Windows.Forms.FolderBrowserDialog();
             this.btnFolder1 = new System.Windows.Forms.Button();
             this.lblFolder1 = new System.Windows.Forms.Label();
             this.lblFolder2 = new System.Windows.Forms.Label();
@@ -37,6 +36,8 @@
             this.btnFolder2 = new System.Windows.Forms.Button();
             this.btnCompare = new System.Windows.Forms.Button();
             this.btnSync = new System.Windows.Forms.Button();
+            this.lblStatus = new System.Windows.Forms.Label();
+            this.fldSynch = new System.Windows.Forms.FolderBrowserDialog();
             this.SuspendLayout();
             // 
             // btnFolder1
@@ -73,7 +74,7 @@
             this.txtFolder1.Name = "txtFolder1";
             this.txtFolder1.Size = new System.Drawing.Size(413, 20);
             this.txtFolder1.TabIndex = 3;
-            this.txtFolder1.Text = "C:\\Users\\Hector\\Source\\Repos\\ioq3";
+            this.txtFolder1.Text = "M:\\";
             // 
             // txtFolder2
             // 
@@ -81,7 +82,7 @@
             this.txtFolder2.Name = "txtFolder2";
             this.txtFolder2.Size = new System.Drawing.Size(413, 20);
             this.txtFolder2.TabIndex = 4;
-            this.txtFolder2.Text = "C:\\Users\\Hector\\Desktop\\ioq3";
+            this.txtFolder2.Text = "F:\\";
             // 
             // btnFolder2
             // 
@@ -112,11 +113,21 @@
             this.btnSync.Text = "Sync";
             this.btnSync.UseVisualStyleBackColor = true;
             // 
+            // lblStatus
+            // 
+            this.lblStatus.AutoSize = true;
+            this.lblStatus.Location = new System.Drawing.Point(23, 94);
+            this.lblStatus.Name = "lblStatus";
+            this.lblStatus.Size = new System.Drawing.Size(37, 13);
+            this.lblStatus.TabIndex = 9;
+            this.lblStatus.Text = "Status";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(604, 105);
+            this.ClientSize = new System.Drawing.Size(604, 847);
+            this.Controls.Add(this.lblStatus);
             this.Controls.Add(this.btnSync);
             this.Controls.Add(this.btnCompare);
             this.Controls.Add(this.btnFolder2);
@@ -133,8 +144,6 @@
         }
 
         #endregion
-
-        private System.Windows.Forms.FolderBrowserDialog fldSynch;
         private System.Windows.Forms.Button btnFolder1;
         private System.Windows.Forms.Label lblFolder1;
         private System.Windows.Forms.Label lblFolder2;
@@ -143,6 +152,10 @@
         private System.Windows.Forms.Button btnFolder2;
         private System.Windows.Forms.Button btnCompare;
         private System.Windows.Forms.Button btnSync;
+        private System.Windows.Forms.Label lblStatus;
+        private System.Windows.Forms.DataGridViewTextBoxColumn sourceDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn destinationDataGridViewTextBoxColumn;
+        private System.Windows.Forms.FolderBrowserDialog fldSynch;
     }
 }
 

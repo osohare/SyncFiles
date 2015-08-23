@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SyncFiles
+namespace SyncFiles.Infrastructure
 {
     // This implementation defines a very simple comparison 
     // between two FileInfo objects. It only compares the name 
