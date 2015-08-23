@@ -29,6 +29,7 @@ namespace SyncFiles.Models
         public FileSystemInfo Destination { get; set; }
         public DiffType DifferenceType { get; set; }
         public  ItemType ItemType { get; set; }
+        public string Resolution { get; set; }
     }
 
 }

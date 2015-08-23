@@ -14,11 +14,12 @@ using System.Windows.Forms;
 
 namespace SyncFiles
 {
-    public partial class Form1 : Form
+    public partial class frmMain : Form
     {
         private TraverseTree traverse = new TraverseTree();
+        private BindingListView<FileDiff> view = new BindingListView<FileDiff>(new string[] { });
 
-        public Form1()
+        public frmMain()
         {
             InitializeComponent();
         }
@@ -71,10 +72,8 @@ namespace SyncFiles
             await traverse.Compare(txtFolder1.Text, txtFolder2.Text, progressIndicator);
 
             List<FileDiff> differences = traverse.Differences;
-            BindingListView<FileDiff> view = new BindingListView<FileDiff>(differences);
+            view = new BindingListView<FileDiff>(differences);
             dataGridView1.DataSource = view;
-
-            view.ApplyFilter(delegate (FileDiff diff) { return diff.DifferenceType != DiffType.LastWritten; });
 
             lblStatus.Text = string.Format("Scanned {0} directories, {1} differences", traverse.TotalDirectories, traverse.Differences.Count());
         }
@@ -86,6 +85,25 @@ namespace SyncFiles
                 lblStatus.BeginInvoke((MethodInvoker) delegate () { lblStatus.Text = value; });
             else
                 lblStatus.Text = value;
+        }
+
+        private void chkDiffType_ItemCheck(object sender, ItemCheckEventArgs e)
+        {
+            switch (e.Index)
+            {
+                case 0:
+                    view.ApplyFilter(delegate (FileDiff diff) { return diff.DifferenceType == DiffType.ExistInSourceOnly; });
+                    break;
+                case 1:
+                    view.ApplyFilter(delegate (FileDiff diff) { return diff.DifferenceType == DiffType.ExistInDestinationOnly; });
+                    break;
+                case 2:
+                    view.ApplyFilter(delegate (FileDiff diff) { return diff.DifferenceType == DiffType.Lenght; });
+                    break;
+                case 3:
+                    view.ApplyFilter(delegate (FileDiff diff) { return diff.DifferenceType == DiffType.LastWritten; });
+                    break;
+            }
         }
     }
 }
