@@ -8,18 +8,20 @@ using System.Threading.Tasks;
 
 namespace SyncFiles.Models
 {
-    public enum DiffType
+    [Flags] public enum DiffType
     {
-        ExistInSourceOnly,
-        ExistInDestinationOnly,
-        LastWritten,
-        Lenght
+        None = 0,
+        ExistInSourceOnly = 1,
+        ExistInDestinationOnly = 2,
+        Lenght = 4,
+        LastWritten = 8
     }
 
-    public enum ItemType
+    [Flags] public enum ItemType
     {
-        File,
-        Folder
+        None = 0,
+        File = 1,
+        Folder = 2
     }
 
     [DebuggerDisplay("Source = {Source} Destination = {Destination} DifferenceType = {DifferenceType} Type = {ItemType}")]

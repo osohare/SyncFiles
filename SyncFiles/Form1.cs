@@ -76,6 +76,64 @@ namespace SyncFiles
             dataGridView1.DataSource = view;
 
             lblStatus.Text = string.Format("Scanned {0} directories, {1} differences", traverse.TotalDirectories, traverse.Differences.Count());
+
+            treeSource.Nodes.Add(MakeTreeFromPaths(differences, "Source Files", source: true));
+            treeSource.Sort();
+            //treeSource.ExpandAll();
+
+            treeDestination.Nodes.Add(MakeTreeFromPaths(differences, "Destination Files", source: false));
+            treeDestination.Sort();
+            //treeDestination.ExpandAll();
+        }
+
+        private TreeNode MakeTreeFromPaths(List<FileDiff> paths, string rootNodeName = "", char separator = '\\', bool source = true)
+        {
+            var rootNode = new TreeNode(rootNodeName);
+
+            if (source)
+            {
+                foreach (var path in paths.Where(x => x.Source != null))
+                {
+                    var currentNode = rootNode;
+                    var pathItems = path.Source.FullName.Split(separator);
+                    var lastItem = pathItems.Last();
+                    foreach (var item in pathItems)
+                    {
+                        var tmp = currentNode.Nodes.Cast<TreeNode>().Where(x => x.Text.Equals(item));
+                        currentNode = tmp.Count() > 0 ? tmp.Single() : currentNode.Nodes.Add(item);
+                        if (lastItem.Equals(item))
+                        {
+                            if(path.DifferenceType == DiffType.ExistInSourceOnly)
+                                currentNode.ForeColor = Color.Red;
+                            if (path.DifferenceType == DiffType.LastWritten)
+                                currentNode.ForeColor = Color.Blue;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                foreach (var path in paths.Where(x => x.Destination != null))
+                {
+                    var currentNode = rootNode;
+                    var pathItems = path.Destination.FullName.Split(separator);
+                    var lastItem = pathItems.Last();
+                    foreach (var item in pathItems)
+                    {
+                        var tmp = currentNode.Nodes.Cast<TreeNode>().Where(x => x.Text.Equals(item));
+                        currentNode = tmp.Count() > 0 ? tmp.Single() : currentNode.Nodes.Add(item);
+                        if (lastItem.Equals(item))
+                        {
+                            if(path.DifferenceType == DiffType.ExistInDestinationOnly)
+                                currentNode.ForeColor = Color.Red;
+                            if (path.DifferenceType == DiffType.LastWritten)
+                                currentNode.ForeColor = Color.Blue;
+                        }
+                    }
+                }
+            }
+
+            return rootNode;
         }
 
         private void ReportScanProgress(string value)
@@ -87,23 +145,18 @@ namespace SyncFiles
                 lblStatus.Text = value;
         }
 
-        private void chkDiffType_ItemCheck(object sender, ItemCheckEventArgs e)
+        private void lstFilter_ItemChecked(object sender, ItemCheckedEventArgs e)
         {
-            switch (e.Index)
+            DiffType selection = 0;
+            foreach (var item in lstFilter.Items)
             {
-                case 0:
-                    view.ApplyFilter(delegate (FileDiff diff) { return diff.DifferenceType == DiffType.ExistInSourceOnly; });
-                    break;
-                case 1:
-                    view.ApplyFilter(delegate (FileDiff diff) { return diff.DifferenceType == DiffType.ExistInDestinationOnly; });
-                    break;
-                case 2:
-                    view.ApplyFilter(delegate (FileDiff diff) { return diff.DifferenceType == DiffType.Lenght; });
-                    break;
-                case 3:
-                    view.ApplyFilter(delegate (FileDiff diff) { return diff.DifferenceType == DiffType.LastWritten; });
-                    break;
+                var viewItem = item as ListViewItem;
+                if (viewItem.Checked)
+                    selection = selection | (DiffType)int.Parse(viewItem.Tag.ToString());
             }
+
+            view.ApplyFilter(delegate (FileDiff diff) { return selection.HasFlag(diff.DifferenceType); });
         }
+
     }
 }

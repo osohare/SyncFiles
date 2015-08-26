@@ -28,10 +28,14 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.Windows.Forms.ListViewItem listViewItem5 = new System.Windows.Forms.ListViewItem("Only source");
+            System.Windows.Forms.ListViewItem listViewItem6 = new System.Windows.Forms.ListViewItem("Only destination");
+            System.Windows.Forms.ListViewItem listViewItem7 = new System.Windows.Forms.ListViewItem("File size");
+            System.Windows.Forms.ListViewItem listViewItem8 = new System.Windows.Forms.ListViewItem("Last timestamp");
             this.fldSynch = new System.Windows.Forms.FolderBrowserDialog();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.pnlMainControls = new System.Windows.Forms.Panel();
+            this.lstFilter = new System.Windows.Forms.ListView();
             this.lblStatus = new System.Windows.Forms.Label();
             this.btnSync = new System.Windows.Forms.Button();
             this.btnCompare = new System.Windows.Forms.Button();
@@ -41,17 +45,23 @@
             this.lblFolder2 = new System.Windows.Forms.Label();
             this.lblFolder1 = new System.Windows.Forms.Label();
             this.btnFolder1 = new System.Windows.Forms.Button();
-            this.chkDiffType = new System.Windows.Forms.CheckedListBox();
+            this.treeDestination = new System.Windows.Forms.TreeView();
+            this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.treeSource = new System.Windows.Forms.TreeView();
             this.tableLayoutPanel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.pnlMainControls.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
             // tableLayoutPanel1
             // 
-            this.tableLayoutPanel1.ColumnCount = 1;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel1.ColumnCount = 3;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.Controls.Add(this.treeSource, 0, 1);
             this.tableLayoutPanel1.Controls.Add(this.dataGridView1, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.treeDestination, 0, 1);
             this.tableLayoutPanel1.Controls.Add(this.pnlMainControls, 0, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
@@ -59,24 +69,13 @@
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 120F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(784, 561);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(959, 561);
             this.tableLayoutPanel1.TabIndex = 11;
-            // 
-            // dataGridView1
-            // 
-            this.dataGridView1.AllowUserToAddRows = false;
-            this.dataGridView1.AllowUserToDeleteRows = false;
-            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dataGridView1.Location = new System.Drawing.Point(3, 123);
-            this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.ReadOnly = true;
-            this.dataGridView1.Size = new System.Drawing.Size(778, 435);
-            this.dataGridView1.TabIndex = 11;
             // 
             // pnlMainControls
             // 
-            this.pnlMainControls.Controls.Add(this.chkDiffType);
+            this.tableLayoutPanel1.SetColumnSpan(this.pnlMainControls, 3);
+            this.pnlMainControls.Controls.Add(this.lstFilter);
             this.pnlMainControls.Controls.Add(this.lblStatus);
             this.pnlMainControls.Controls.Add(this.btnSync);
             this.pnlMainControls.Controls.Add(this.btnCompare);
@@ -88,8 +87,33 @@
             this.pnlMainControls.Controls.Add(this.btnFolder1);
             this.pnlMainControls.Location = new System.Drawing.Point(3, 3);
             this.pnlMainControls.Name = "pnlMainControls";
-            this.pnlMainControls.Size = new System.Drawing.Size(778, 114);
+            this.pnlMainControls.Size = new System.Drawing.Size(890, 114);
             this.pnlMainControls.TabIndex = 12;
+            // 
+            // lstFilter
+            // 
+            this.lstFilter.CheckBoxes = true;
+            this.lstFilter.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
+            listViewItem5.StateImageIndex = 0;
+            listViewItem5.Tag = "1";
+            listViewItem6.StateImageIndex = 0;
+            listViewItem6.Tag = "2";
+            listViewItem7.StateImageIndex = 0;
+            listViewItem7.Tag = "4";
+            listViewItem8.StateImageIndex = 0;
+            listViewItem8.Tag = "8";
+            this.lstFilter.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
+            listViewItem5,
+            listViewItem6,
+            listViewItem7,
+            listViewItem8});
+            this.lstFilter.Location = new System.Drawing.Point(586, 4);
+            this.lstFilter.Name = "lstFilter";
+            this.lstFilter.Size = new System.Drawing.Size(107, 81);
+            this.lstFilter.TabIndex = 19;
+            this.lstFilter.UseCompatibleStateImageBehavior = false;
+            this.lstFilter.View = System.Windows.Forms.View.List;
+            this.lstFilter.ItemChecked += new System.Windows.Forms.ItemCheckedEventHandler(this.lstFilter_ItemChecked);
             // 
             // lblStatus
             // 
@@ -173,35 +197,48 @@
             this.btnFolder1.UseVisualStyleBackColor = true;
             this.btnFolder1.Click += new System.EventHandler(this.btnFolder1_Click);
             // 
-            // chkDiffType
+            // treeDestination
             // 
-            this.chkDiffType.CheckOnClick = true;
-            this.chkDiffType.FormattingEnabled = true;
-            this.chkDiffType.Items.AddRange(new object[] {
-            "Only at source",
-            "Only at destination",
-            "File size",
-            "Last timestamp"});
-            this.chkDiffType.Location = new System.Drawing.Point(585, 4);
-            this.chkDiffType.Name = "chkDiffType";
-            this.chkDiffType.Size = new System.Drawing.Size(120, 64);
-            this.chkDiffType.TabIndex = 19;
-            this.chkDiffType.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.chkDiffType_ItemCheck);
+            this.treeDestination.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.treeDestination.Location = new System.Drawing.Point(242, 123);
+            this.treeDestination.Name = "treeDestination";
+            this.treeDestination.Size = new System.Drawing.Size(233, 435);
+            this.treeDestination.TabIndex = 22;
+            // 
+            // dataGridView1
+            // 
+            this.dataGridView1.AllowUserToAddRows = false;
+            this.dataGridView1.AllowUserToDeleteRows = false;
+            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dataGridView1.Location = new System.Drawing.Point(481, 123);
+            this.dataGridView1.Name = "dataGridView1";
+            this.dataGridView1.ReadOnly = true;
+            this.dataGridView1.Size = new System.Drawing.Size(475, 435);
+            this.dataGridView1.TabIndex = 24;
+            // 
+            // treeSource
+            // 
+            this.treeSource.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.treeSource.Location = new System.Drawing.Point(3, 123);
+            this.treeSource.Name = "treeSource";
+            this.treeSource.Size = new System.Drawing.Size(233, 435);
+            this.treeSource.TabIndex = 25;
             // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(784, 561);
+            this.ClientSize = new System.Drawing.Size(959, 561);
             this.Controls.Add(this.tableLayoutPanel1);
             this.MinimumSize = new System.Drawing.Size(600, 400);
             this.Name = "frmMain";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Super Natallias backup";
             this.tableLayoutPanel1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.pnlMainControls.ResumeLayout(false);
             this.pnlMainControls.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -211,7 +248,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn destinationDataGridViewTextBoxColumn;
         private System.Windows.Forms.FolderBrowserDialog fldSynch;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
-        private System.Windows.Forms.DataGridView dataGridView1;
         private System.Windows.Forms.Panel pnlMainControls;
         private System.Windows.Forms.Label lblStatus;
         private System.Windows.Forms.Button btnSync;
@@ -222,7 +258,10 @@
         private System.Windows.Forms.Label lblFolder2;
         private System.Windows.Forms.Label lblFolder1;
         private System.Windows.Forms.Button btnFolder1;
-        private System.Windows.Forms.CheckedListBox chkDiffType;
+        private System.Windows.Forms.ListView lstFilter;
+        private System.Windows.Forms.TreeView treeSource;
+        private System.Windows.Forms.DataGridView dataGridView1;
+        private System.Windows.Forms.TreeView treeDestination;
     }
 }
 
