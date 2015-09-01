@@ -28,12 +28,15 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.ListViewItem listViewItem9 = new System.Windows.Forms.ListViewItem("Only source");
-            System.Windows.Forms.ListViewItem listViewItem10 = new System.Windows.Forms.ListViewItem("Only destination");
-            System.Windows.Forms.ListViewItem listViewItem11 = new System.Windows.Forms.ListViewItem("File size");
-            System.Windows.Forms.ListViewItem listViewItem12 = new System.Windows.Forms.ListViewItem("Last timestamp");
+            System.Windows.Forms.ListViewItem listViewItem5 = new System.Windows.Forms.ListViewItem("Only source");
+            System.Windows.Forms.ListViewItem listViewItem6 = new System.Windows.Forms.ListViewItem("Only destination");
+            System.Windows.Forms.ListViewItem listViewItem7 = new System.Windows.Forms.ListViewItem("File size");
+            System.Windows.Forms.ListViewItem listViewItem8 = new System.Windows.Forms.ListViewItem("Last timestamp");
             this.fldSynch = new System.Windows.Forms.FolderBrowserDialog();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.treeSource = new System.Windows.Forms.TreeView();
+            this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.treeDestination = new System.Windows.Forms.TreeView();
             this.pnlMainControls = new System.Windows.Forms.Panel();
             this.lstFilter = new System.Windows.Forms.ListView();
             this.lblStatus = new System.Windows.Forms.Label();
@@ -45,12 +48,10 @@
             this.lblFolder2 = new System.Windows.Forms.Label();
             this.lblFolder1 = new System.Windows.Forms.Label();
             this.btnFolder1 = new System.Windows.Forms.Button();
-            this.treeDestination = new System.Windows.Forms.TreeView();
-            this.dataGridView1 = new System.Windows.Forms.DataGridView();
-            this.treeSource = new System.Windows.Forms.TreeView();
+            this.btnWorkspace = new System.Windows.Forms.Button();
             this.tableLayoutPanel1.SuspendLayout();
-            this.pnlMainControls.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
+            this.pnlMainControls.SuspendLayout();
             this.SuspendLayout();
             // 
             // tableLayoutPanel1
@@ -72,9 +73,38 @@
             this.tableLayoutPanel1.Size = new System.Drawing.Size(959, 561);
             this.tableLayoutPanel1.TabIndex = 11;
             // 
+            // treeSource
+            // 
+            this.treeSource.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.treeSource.Location = new System.Drawing.Point(3, 123);
+            this.treeSource.Name = "treeSource";
+            this.treeSource.Size = new System.Drawing.Size(233, 435);
+            this.treeSource.TabIndex = 25;
+            // 
+            // dataGridView1
+            // 
+            this.dataGridView1.AllowUserToAddRows = false;
+            this.dataGridView1.AllowUserToDeleteRows = false;
+            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dataGridView1.Location = new System.Drawing.Point(481, 123);
+            this.dataGridView1.Name = "dataGridView1";
+            this.dataGridView1.ReadOnly = true;
+            this.dataGridView1.Size = new System.Drawing.Size(475, 435);
+            this.dataGridView1.TabIndex = 24;
+            // 
+            // treeDestination
+            // 
+            this.treeDestination.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.treeDestination.Location = new System.Drawing.Point(242, 123);
+            this.treeDestination.Name = "treeDestination";
+            this.treeDestination.Size = new System.Drawing.Size(233, 435);
+            this.treeDestination.TabIndex = 22;
+            // 
             // pnlMainControls
             // 
             this.tableLayoutPanel1.SetColumnSpan(this.pnlMainControls, 3);
+            this.pnlMainControls.Controls.Add(this.btnWorkspace);
             this.pnlMainControls.Controls.Add(this.lstFilter);
             this.pnlMainControls.Controls.Add(this.lblStatus);
             this.pnlMainControls.Controls.Add(this.btnSync);
@@ -87,26 +117,26 @@
             this.pnlMainControls.Controls.Add(this.btnFolder1);
             this.pnlMainControls.Location = new System.Drawing.Point(3, 3);
             this.pnlMainControls.Name = "pnlMainControls";
-            this.pnlMainControls.Size = new System.Drawing.Size(890, 114);
+            this.pnlMainControls.Size = new System.Drawing.Size(702, 114);
             this.pnlMainControls.TabIndex = 12;
             // 
             // lstFilter
             // 
             this.lstFilter.CheckBoxes = true;
             this.lstFilter.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
-            listViewItem9.StateImageIndex = 0;
-            listViewItem9.Tag = "1";
-            listViewItem10.StateImageIndex = 0;
-            listViewItem10.Tag = "2";
-            listViewItem11.StateImageIndex = 0;
-            listViewItem11.Tag = "4";
-            listViewItem12.StateImageIndex = 0;
-            listViewItem12.Tag = "8";
+            listViewItem5.StateImageIndex = 0;
+            listViewItem5.Tag = "1";
+            listViewItem6.StateImageIndex = 0;
+            listViewItem6.Tag = "2";
+            listViewItem7.StateImageIndex = 0;
+            listViewItem7.Tag = "4";
+            listViewItem8.StateImageIndex = 0;
+            listViewItem8.Tag = "8";
             this.lstFilter.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem9,
-            listViewItem10,
-            listViewItem11,
-            listViewItem12});
+            listViewItem5,
+            listViewItem6,
+            listViewItem7,
+            listViewItem8});
             this.lstFilter.Location = new System.Drawing.Point(586, 4);
             this.lstFilter.Name = "lstFilter";
             this.lstFilter.Size = new System.Drawing.Size(107, 81);
@@ -184,9 +214,9 @@
             this.lblFolder1.AutoSize = true;
             this.lblFolder1.Location = new System.Drawing.Point(11, 12);
             this.lblFolder1.Name = "lblFolder1";
-            this.lblFolder1.Size = new System.Drawing.Size(68, 13);
+            this.lblFolder1.Size = new System.Drawing.Size(71, 13);
             this.lblFolder1.TabIndex = 11;
-            this.lblFolder1.Text = "Root folder 1";
+            this.lblFolder1.Text = "Root Folder 1";
             // 
             // btnFolder1
             // 
@@ -198,33 +228,15 @@
             this.btnFolder1.UseVisualStyleBackColor = true;
             this.btnFolder1.Click += new System.EventHandler(this.btnFolder1_Click);
             // 
-            // treeDestination
+            // btnWorkspace
             // 
-            this.treeDestination.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.treeDestination.Location = new System.Drawing.Point(242, 123);
-            this.treeDestination.Name = "treeDestination";
-            this.treeDestination.Size = new System.Drawing.Size(233, 435);
-            this.treeDestination.TabIndex = 22;
-            // 
-            // dataGridView1
-            // 
-            this.dataGridView1.AllowUserToAddRows = false;
-            this.dataGridView1.AllowUserToDeleteRows = false;
-            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dataGridView1.Location = new System.Drawing.Point(481, 123);
-            this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.ReadOnly = true;
-            this.dataGridView1.Size = new System.Drawing.Size(475, 435);
-            this.dataGridView1.TabIndex = 24;
-            // 
-            // treeSource
-            // 
-            this.treeSource.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.treeSource.Location = new System.Drawing.Point(3, 123);
-            this.treeSource.Name = "treeSource";
-            this.treeSource.Size = new System.Drawing.Size(233, 435);
-            this.treeSource.TabIndex = 25;
+            this.btnWorkspace.Location = new System.Drawing.Point(342, 62);
+            this.btnWorkspace.Name = "btnWorkspace";
+            this.btnWorkspace.Size = new System.Drawing.Size(75, 23);
+            this.btnWorkspace.TabIndex = 20;
+            this.btnWorkspace.Text = "Workspaces";
+            this.btnWorkspace.UseVisualStyleBackColor = true;
+            this.btnWorkspace.Click += new System.EventHandler(this.btnWorkspace_Click);
             // 
             // frmMain
             // 
@@ -237,9 +249,9 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Super Natallias backup";
             this.tableLayoutPanel1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.pnlMainControls.ResumeLayout(false);
             this.pnlMainControls.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -263,6 +275,7 @@
         private System.Windows.Forms.TreeView treeSource;
         private System.Windows.Forms.DataGridView dataGridView1;
         private System.Windows.Forms.TreeView treeDestination;
+        private System.Windows.Forms.Button btnWorkspace;
     }
 }
 

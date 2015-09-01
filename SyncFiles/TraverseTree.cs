@@ -24,13 +24,11 @@ namespace SyncFiles
         }
 
         public int TotalDirectories { get; private set; }
-        public List<string> ExcludePattern { get; set; }
         public List<string> ExcludeFolders { get; set; }
 
         public TraverseTree()
         {
             AllDifferences = new ConcurrentBag<FileDiff>();
-            ExcludePattern = new List<string>();
             ExcludeFolders = new List<string>();
         }
 

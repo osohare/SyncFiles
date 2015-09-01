@@ -137,13 +137,20 @@ namespace SyncFiles
 
         private void btnSync_Click(object sender, EventArgs e)
         {
-            Console.WriteLine(DateTime.Now);
-            FileHasher hasher = new FileHasher();
-            var hash1 = hasher.HashFile(@"F:\Hector\DATA\Public\Downloads\Android\install_flash_player_ics.apk");
-            Console.WriteLine(DateTime.Now);
-            var hash2 = hasher.HashFileAsync(@"F:\Hector\DATA\Public\Downloads\Android\install_flash_player_ics.apk");
-            Console.WriteLine(DateTime.Now);
-            Console.WriteLine("Files equal " + (hash1 == hash2).ToString());
+
+        }
+
+        private void btnWorkspace_Click(object sender, EventArgs e)
+        {
+            frmWorkSpace workspaceForm = new frmWorkSpace();
+            switch (workspaceForm.ShowDialog())
+            {
+                case DialogResult.OK:
+                case DialogResult.Yes:
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }
