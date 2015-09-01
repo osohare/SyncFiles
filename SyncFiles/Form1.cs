@@ -1,4 +1,5 @@
 ﻿using Equin.ApplicationFramework;
+using SyncFiles.Checksum;
 using SyncFiles.Models;
 using System;
 using System.Collections.Concurrent;
@@ -89,50 +90,26 @@ namespace SyncFiles
         private TreeNode MakeTreeFromPaths(List<FileDiff> paths, string rootNodeName = "", char separator = '\\', bool source = true)
         {
             var rootNode = new TreeNode(rootNodeName);
+            var allpaths = source ? paths.Where(x => x.Source != null) : paths.Where(x => x.Destination != null);
 
-            if (source)
+            foreach (var path in allpaths)
             {
-                foreach (var path in paths.Where(x => x.Source != null))
+                var currentNode = rootNode;
+                var pathItems = source ? path.Source.FullName.Split(separator) : path.Destination.FullName.Split(separator);
+                var lastItem = pathItems.Last();
+                foreach (var item in pathItems)
                 {
-                    var currentNode = rootNode;
-                    var pathItems = path.Source.FullName.Split(separator);
-                    var lastItem = pathItems.Last();
-                    foreach (var item in pathItems)
+                    var tmp = currentNode.Nodes.Cast<TreeNode>().Where(x => x.Text.Equals(item));
+                    currentNode = tmp.Count() > 0 ? tmp.Single() : currentNode.Nodes.Add(item);
+                    if (lastItem.Equals(item))
                     {
-                        var tmp = currentNode.Nodes.Cast<TreeNode>().Where(x => x.Text.Equals(item));
-                        currentNode = tmp.Count() > 0 ? tmp.Single() : currentNode.Nodes.Add(item);
-                        if (lastItem.Equals(item))
-                        {
-                            if(path.DifferenceType == DiffType.ExistInSourceOnly)
-                                currentNode.ForeColor = Color.Red;
-                            if (path.DifferenceType == DiffType.LastWritten)
-                                currentNode.ForeColor = Color.Blue;
-                        }
+                        if(path.DifferenceType.HasFlag( DiffType.ExistInSourceOnly | DiffType.ExistInDestinationOnly))
+                            currentNode.ForeColor = Color.Red;
+                        if (path.DifferenceType == DiffType.LastWritten)
+                            currentNode.ForeColor = Color.Blue;
                     }
                 }
             }
-            else
-            {
-                foreach (var path in paths.Where(x => x.Destination != null))
-                {
-                    var currentNode = rootNode;
-                    var pathItems = path.Destination.FullName.Split(separator);
-                    var lastItem = pathItems.Last();
-                    foreach (var item in pathItems)
-                    {
-                        var tmp = currentNode.Nodes.Cast<TreeNode>().Where(x => x.Text.Equals(item));
-                        currentNode = tmp.Count() > 0 ? tmp.Single() : currentNode.Nodes.Add(item);
-                        if (lastItem.Equals(item))
-                        {
-                            if(path.DifferenceType == DiffType.ExistInDestinationOnly)
-                                currentNode.ForeColor = Color.Red;
-                            if (path.DifferenceType == DiffType.LastWritten)
-                                currentNode.ForeColor = Color.Blue;
-                        }
-                    }
-                }
-            }
-
             return rootNode;
         }
 
@@ -158,5 +135,15 @@ namespace SyncFiles
             view.ApplyFilter(delegate (FileDiff diff) { return selection.HasFlag(diff.DifferenceType); });
         }
 
+        private void btnSync_Click(object sender, EventArgs e)
+        {
+            Console.WriteLine(DateTime.Now);
+            FileHasher hasher = new FileHasher();
+            var hash1 = hasher.HashFile(@"F:\Hector\DATA\Public\Downloads\Android\install_flash_player_ics.apk");
+            Console.WriteLine(DateTime.Now);
+            var hash2 = hasher.HashFileAsync(@"F:\Hector\DATA\Public\Downloads\Android\install_flash_player_ics.apk");
+            Console.WriteLine(DateTime.Now);
+            Console.WriteLine("Files equal " + (hash1 == hash2).ToString());
+        }
     }
 }

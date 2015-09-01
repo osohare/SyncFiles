@@ -50,6 +50,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Checksum\AdlerCheckSum.cs" />
+    <Compile Include="Checksum\FileHasher.cs" />
     <Compile Include="Infrastructure\FileSystemCompare.cs" />
     <Compile Include="Infrastructure\FileCompare.cs" />
     <Compile Include="Models\FileDiff.cs" />

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SyncFiles.Checksum;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -24,6 +25,14 @@ namespace SyncFiles.Infrastructure
         public bool ExternalCompare(FileInfo f1, FileInfo f2)
         {
             return this.Equals(f1, f2);
+        }
+
+        public bool ExternalCompareByHash(FileInfo f1, FileInfo f2)
+        {
+            FileHasher hasher = new FileHasher();
+            var hash1 = hasher.HashFile(f1.FullName);
+            var hash2 = hasher.HashFile(f2.FullName);
+            return hash1.Equals(hash2);
         }
 
         // Return a hash that reflects the comparison criteria. According to the  

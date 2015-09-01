@@ -28,10 +28,10 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.ListViewItem listViewItem5 = new System.Windows.Forms.ListViewItem("Only source");
-            System.Windows.Forms.ListViewItem listViewItem6 = new System.Windows.Forms.ListViewItem("Only destination");
-            System.Windows.Forms.ListViewItem listViewItem7 = new System.Windows.Forms.ListViewItem("File size");
-            System.Windows.Forms.ListViewItem listViewItem8 = new System.Windows.Forms.ListViewItem("Last timestamp");
+            System.Windows.Forms.ListViewItem listViewItem9 = new System.Windows.Forms.ListViewItem("Only source");
+            System.Windows.Forms.ListViewItem listViewItem10 = new System.Windows.Forms.ListViewItem("Only destination");
+            System.Windows.Forms.ListViewItem listViewItem11 = new System.Windows.Forms.ListViewItem("File size");
+            System.Windows.Forms.ListViewItem listViewItem12 = new System.Windows.Forms.ListViewItem("Last timestamp");
             this.fldSynch = new System.Windows.Forms.FolderBrowserDialog();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.pnlMainControls = new System.Windows.Forms.Panel();
@@ -94,19 +94,19 @@
             // 
             this.lstFilter.CheckBoxes = true;
             this.lstFilter.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
-            listViewItem5.StateImageIndex = 0;
-            listViewItem5.Tag = "1";
-            listViewItem6.StateImageIndex = 0;
-            listViewItem6.Tag = "2";
-            listViewItem7.StateImageIndex = 0;
-            listViewItem7.Tag = "4";
-            listViewItem8.StateImageIndex = 0;
-            listViewItem8.Tag = "8";
+            listViewItem9.StateImageIndex = 0;
+            listViewItem9.Tag = "1";
+            listViewItem10.StateImageIndex = 0;
+            listViewItem10.Tag = "2";
+            listViewItem11.StateImageIndex = 0;
+            listViewItem11.Tag = "4";
+            listViewItem12.StateImageIndex = 0;
+            listViewItem12.Tag = "8";
             this.lstFilter.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem5,
-            listViewItem6,
-            listViewItem7,
-            listViewItem8});
+            listViewItem9,
+            listViewItem10,
+            listViewItem11,
+            listViewItem12});
             this.lstFilter.Location = new System.Drawing.Point(586, 4);
             this.lstFilter.Name = "lstFilter";
             this.lstFilter.Size = new System.Drawing.Size(107, 81);
@@ -132,6 +132,7 @@
             this.btnSync.TabIndex = 17;
             this.btnSync.Text = "Sync";
             this.btnSync.UseVisualStyleBackColor = true;
+            this.btnSync.Click += new System.EventHandler(this.btnSync_Click);
             // 
             // btnCompare
             // 
