@@ -147,6 +147,7 @@ namespace SyncFiles
             {
                 case DialogResult.OK:
                 case DialogResult.Yes:
+
                     break;
                 default:
                     break;

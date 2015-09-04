@@ -15,7 +15,7 @@ namespace SyncFiles
 {
     public partial class frmWorkSpace : Form
     {
-        private Workspace workspace = null;
+        internal Workspace workspace = null;
 
         public frmWorkSpace()
         {
@@ -75,6 +75,11 @@ namespace SyncFiles
             }
         }
 
+        private void btnSaveUse_Click(object sender, EventArgs e)
+        {
+
+        }
+
         private void txtExclusion_KeyPress(object sender, KeyPressEventArgs e)
         {
             switch (e.KeyChar)
@@ -99,5 +104,6 @@ namespace SyncFiles
                     break;
             }
         }
+
     }
 }

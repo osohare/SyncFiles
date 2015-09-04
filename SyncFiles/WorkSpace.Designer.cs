@@ -39,11 +39,12 @@
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.txtExclusion = new System.Windows.Forms.TextBox();
+            this.btnSaveUse = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // btnLoad
             // 
-            this.btnLoad.Location = new System.Drawing.Point(342, 184);
+            this.btnLoad.Location = new System.Drawing.Point(261, 184);
             this.btnLoad.Name = "btnLoad";
             this.btnLoad.Size = new System.Drawing.Size(75, 23);
             this.btnLoad.TabIndex = 0;
@@ -53,7 +54,7 @@
             // 
             // btnSave
             // 
-            this.btnSave.Location = new System.Drawing.Point(423, 184);
+            this.btnSave.Location = new System.Drawing.Point(342, 184);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(75, 23);
             this.btnSave.TabIndex = 1;
@@ -113,10 +114,6 @@
             this.lstExclusions.TabIndex = 20;
             this.lstExclusions.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.lstExclusions_KeyPress);
             // 
-            // openFileDialog1
-            // 
-            this.openFileDialog1.FileName = "openFileDialog1";
-            // 
             // txtExclusion
             // 
             this.txtExclusion.Location = new System.Drawing.Point(85, 64);
@@ -125,11 +122,22 @@
             this.txtExclusion.TabIndex = 21;
             this.txtExclusion.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtExclusion_KeyPress);
             // 
+            // btnSaveUse
+            // 
+            this.btnSaveUse.Location = new System.Drawing.Point(423, 184);
+            this.btnSaveUse.Name = "btnSaveUse";
+            this.btnSaveUse.Size = new System.Drawing.Size(75, 23);
+            this.btnSaveUse.TabIndex = 22;
+            this.btnSaveUse.Text = "Save / Use";
+            this.btnSaveUse.UseVisualStyleBackColor = true;
+            this.btnSaveUse.Click += new System.EventHandler(this.btnSaveUse_Click);
+            // 
             // frmWorkSpace
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(507, 214);
+            this.Controls.Add(this.btnSaveUse);
             this.Controls.Add(this.txtExclusion);
             this.Controls.Add(this.lstExclusions);
             this.Controls.Add(this.lblExclusions);
@@ -164,5 +172,6 @@
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.SaveFileDialog saveFileDialog1;
         private System.Windows.Forms.TextBox txtExclusion;
+        private System.Windows.Forms.Button btnSaveUse;
     }
 }

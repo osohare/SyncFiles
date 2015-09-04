@@ -13,25 +13,57 @@ using System.Threading.Tasks;
 
 namespace SyncFiles
 {
+    /// <summary>
+    /// This class helps to traverse a folder structure in a non-recursive fashion; if hierarchy is too big the memory usage will be too high.
+    /// While the SourceFolder is traversed it will find the differences with the destination folder, trying to match files by name and adding to an exception list when differences are found.
+    /// </summary>
     public class TraverseTree
     {
+        /// <summary>
+        /// Source folder from where to start comparison
+        /// </summary>
         private string SourceRootFolder { get; set; }
+        /// <summary>
+        /// Destination folder to compare to
+        /// </summary>
         private string DestinationRootFolder { get; set; }
+        /// <summary>
+        /// Concurrent collection where all differences are stored
+        /// </summary>
         private ConcurrentBag<FileDiff> AllDifferences { get; set; }
+        /// <summary>
+        /// Public interface that will convert to IEnumerable/List the list of differences collected
+        /// </summary>
         public List<FileDiff> Differences
         {
             get { return AllDifferences.ToList(); }
         }
 
+        /// <summary>
+        /// Total number of directories traversed
+        /// </summary>
         public int TotalDirectories { get; private set; }
+        /// <summary>
+        /// Folder exclusions configured for the run
+        /// </summary>
         public List<string> ExcludeFolders { get; set; }
 
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public TraverseTree()
         {
             AllDifferences = new ConcurrentBag<FileDiff>();
             ExcludeFolders = new List<string>();
         }
 
+        /// <summary>
+        /// Entry point to start traversing and comparing files
+        /// </summary>
+        /// <param name="source">Source folder</param>
+        /// <param name="destination">Destination folder</param>
+        /// <param name="startDirScan">IProgress to indicate number of folders scanned so far and the name of the folder being currently inspected</param>
+        /// <returns></returns>
         public async Task Compare(string source, string destination, IProgress<string> startDirScan)
         {
             await Task.Run(() =>
@@ -106,6 +138,11 @@ namespace SyncFiles
             });
         }
 
+        /// <summary>
+        /// This will translate a location from source and destination, used to verify if a file exists in a relative path from one another
+        /// </summary>
+        /// <param name="path">Full path to translate starting from SourceRootFolder as relative path</param>
+        /// <returns>Full path transalted to DestinationRootFolder</returns>
         private string TranslateDirectoryPath(string path)
         {
             var fileUri = new Uri(path);
@@ -117,9 +154,10 @@ namespace SyncFiles
         }
 
         /// <summary>
+        /// Traverse routine using TPL, for each directory spawn a thread and compare the files in it against the source folder (if a matching file exists).
         /// https://msdn.microsoft.com/en-us/library/ff477033(v=vs.110).aspx
         /// </summary>
-        /// <param name="directoryCompareAction"></param>
+        /// <param name="directoryCompareAction">Delegated action of what to do for comparing files in a direcotry level</param>
         private void TraverseTreeParallelForEach(Action<DirectoryInfo, DirectoryInfo> directoryCompareAction)
         {
             //Count of files traversed and timer for diagnostic output 

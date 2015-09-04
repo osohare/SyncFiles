@@ -2,16 +2,25 @@ using System;
 using System.Security.Cryptography;
 using System.Text;
 
+/// <summary>
+/// This class derives from HashAlgorithm, this was the CLR takes care of all operations including handling of CryptoStream
+/// </summary>
 public class Adler32Managed : HashAlgorithm
 {
     private ushort o_sum_1;
     private ushort o_sum_2;
 
+    /// <summary>
+    /// Default constuctor
+    /// </summary>
     public Adler32Managed()
     {
         Initialize();
     }
 
+    /// <summary>
+    /// 32 by default
+    /// </summary>
     public override int HashSize
     {
         get
@@ -20,6 +29,9 @@ public class Adler32Managed : HashAlgorithm
         }
     }
 
+    /// <summary>
+    /// Initilize IV and any others
+    /// </summary>
     public override void Initialize()
     {
         // reset the sum values
@@ -27,6 +39,12 @@ public class Adler32Managed : HashAlgorithm
         o_sum_2 = 0;
     }
 
+    /// <summary>
+    /// Default Hash function for hashing a block
+    /// </summary>
+    /// <param name="p_array">Array to hash</param>
+    /// <param name="p_start_index">Where to start the hashing</param>
+    /// <param name="p_count">How long will hashing take in positions</param>
     protected override void HashCore(byte[] p_array, int p_start_index, int p_count)
     {
         // process each byte in the array
@@ -37,6 +55,10 @@ public class Adler32Managed : HashAlgorithm
         }
     }
 
+    /// <summary>
+    /// Hash the final block with any byte[] leftovers
+    /// </summary>
+    /// <returns></returns>
     protected override byte[] HashFinal()
     {
         // concat the two 16 bit values to form
