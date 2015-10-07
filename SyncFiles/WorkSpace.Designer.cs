@@ -40,13 +40,16 @@
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.txtExclusion = new System.Windows.Forms.TextBox();
             this.btnSaveUse = new System.Windows.Forms.Button();
+            this.lstPatterns = new System.Windows.Forms.ListBox();
+            this.txtPattern = new System.Windows.Forms.TextBox();
+            this.lblPattern = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // btnLoad
             // 
-            this.btnLoad.Location = new System.Drawing.Point(261, 184);
+            this.btnLoad.Location = new System.Drawing.Point(216, 298);
             this.btnLoad.Name = "btnLoad";
-            this.btnLoad.Size = new System.Drawing.Size(75, 23);
+            this.btnLoad.Size = new System.Drawing.Size(90, 23);
             this.btnLoad.TabIndex = 0;
             this.btnLoad.Text = "Load";
             this.btnLoad.UseVisualStyleBackColor = true;
@@ -54,11 +57,11 @@
             // 
             // btnSave
             // 
-            this.btnSave.Location = new System.Drawing.Point(342, 184);
+            this.btnSave.Location = new System.Drawing.Point(312, 298);
             this.btnSave.Name = "btnSave";
-            this.btnSave.Size = new System.Drawing.Size(75, 23);
+            this.btnSave.Size = new System.Drawing.Size(90, 23);
             this.btnSave.TabIndex = 1;
-            this.btnSave.Text = "Save";
+            this.btnSave.Text = "Save As";
             this.btnSave.UseVisualStyleBackColor = true;
             this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
             // 
@@ -101,14 +104,14 @@
             this.lblExclusions.AutoSize = true;
             this.lblExclusions.Location = new System.Drawing.Point(11, 67);
             this.lblExclusions.Name = "lblExclusions";
-            this.lblExclusions.Size = new System.Drawing.Size(57, 13);
+            this.lblExclusions.Size = new System.Drawing.Size(73, 13);
             this.lblExclusions.TabIndex = 19;
-            this.lblExclusions.Text = "Exclusions";
+            this.lblExclusions.Text = "Add exclusion";
             // 
             // lstExclusions
             // 
             this.lstExclusions.FormattingEnabled = true;
-            this.lstExclusions.Location = new System.Drawing.Point(14, 96);
+            this.lstExclusions.Location = new System.Drawing.Point(17, 96);
             this.lstExclusions.Name = "lstExclusions";
             this.lstExclusions.Size = new System.Drawing.Size(481, 82);
             this.lstExclusions.TabIndex = 20;
@@ -124,19 +127,48 @@
             // 
             // btnSaveUse
             // 
-            this.btnSaveUse.Location = new System.Drawing.Point(423, 184);
+            this.btnSaveUse.Location = new System.Drawing.Point(408, 298);
             this.btnSaveUse.Name = "btnSaveUse";
-            this.btnSaveUse.Size = new System.Drawing.Size(75, 23);
+            this.btnSaveUse.Size = new System.Drawing.Size(90, 23);
             this.btnSaveUse.TabIndex = 22;
-            this.btnSaveUse.Text = "Save / Use";
+            this.btnSaveUse.Text = "Save and Use";
             this.btnSaveUse.UseVisualStyleBackColor = true;
             this.btnSaveUse.Click += new System.EventHandler(this.btnSaveUse_Click);
+            // 
+            // lstPatterns
+            // 
+            this.lstPatterns.FormattingEnabled = true;
+            this.lstPatterns.Location = new System.Drawing.Point(17, 210);
+            this.lstPatterns.Name = "lstPatterns";
+            this.lstPatterns.Size = new System.Drawing.Size(481, 82);
+            this.lstPatterns.TabIndex = 23;
+            this.lstPatterns.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.lstPatterns_KeyPress);
+            // 
+            // txtPattern
+            // 
+            this.txtPattern.Location = new System.Drawing.Point(85, 184);
+            this.txtPattern.Name = "txtPattern";
+            this.txtPattern.Size = new System.Drawing.Size(413, 20);
+            this.txtPattern.TabIndex = 25;
+            this.txtPattern.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtPattern_KeyPress);
+            // 
+            // lblPattern
+            // 
+            this.lblPattern.AutoSize = true;
+            this.lblPattern.Location = new System.Drawing.Point(8, 187);
+            this.lblPattern.Name = "lblPattern";
+            this.lblPattern.Size = new System.Drawing.Size(62, 13);
+            this.lblPattern.TabIndex = 24;
+            this.lblPattern.Text = "Add pattern";
             // 
             // frmWorkSpace
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(507, 214);
+            this.ClientSize = new System.Drawing.Size(507, 329);
+            this.Controls.Add(this.txtPattern);
+            this.Controls.Add(this.lblPattern);
+            this.Controls.Add(this.lstPatterns);
             this.Controls.Add(this.btnSaveUse);
             this.Controls.Add(this.txtExclusion);
             this.Controls.Add(this.lstExclusions);
@@ -173,5 +205,8 @@
         private System.Windows.Forms.SaveFileDialog saveFileDialog1;
         private System.Windows.Forms.TextBox txtExclusion;
         private System.Windows.Forms.Button btnSaveUse;
+        private System.Windows.Forms.ListBox lstPatterns;
+        private System.Windows.Forms.TextBox txtPattern;
+        private System.Windows.Forms.Label lblPattern;
     }
 }

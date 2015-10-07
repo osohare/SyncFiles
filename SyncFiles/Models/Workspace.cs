@@ -25,6 +25,14 @@ namespace SyncFiles.Models
         /// If there are any folders we should not compare, define here
         /// </summary>
         public List<string> Exclusions { get; set; }
+        /// <summary>
+        /// Exclude items by regex match instead of fullname
+        /// </summary>
+        public List<string> ExclusionPatterns { get; set; }
+        /// <summary>
+        /// Name of this workspace
+        /// </summary>
+        public string WorkspaceName { get; set; }
 
         /// <summary>
         /// Method to read a file and load a previously saved workspace
@@ -33,7 +41,11 @@ namespace SyncFiles.Models
         /// <returns>Workspace object</returns>
         public static Workspace FromFile(string fileName)
         {
-            return JsonConvert.DeserializeObject<Workspace>(File.ReadAllText(fileName));
+            if (!File.Exists(fileName))
+                return null;
+            var workspace = JsonConvert.DeserializeObject<Workspace>(File.ReadAllText(fileName));
+            workspace.WorkspaceName = Path.GetFileName(fileName);
+            return workspace;
         }
 
         /// <summary>
@@ -42,6 +54,7 @@ namespace SyncFiles.Models
         /// <param name="fileName">Config fileName</param>
         public void ToFile(string fileName)
         {
+            this.WorkspaceName = Path.GetFileName(fileName);
             File.WriteAllText(fileName, JsonConvert.SerializeObject(this));
         }
     }

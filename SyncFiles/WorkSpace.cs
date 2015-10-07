@@ -15,7 +15,7 @@ namespace SyncFiles
 {
     public partial class frmWorkSpace : Form
     {
-        internal Workspace workspace = null;
+        public Workspace CurrentWorkspace = null;
 
         public frmWorkSpace()
         {
@@ -29,20 +29,24 @@ namespace SyncFiles
             {
                 case DialogResult.OK:
                 case DialogResult.Yes:
-                    workspace = Workspace.FromFile(openFileDialog1.FileName);
-                    txtFolder1.Text = workspace.Folder1;
-                    txtFolder2.Text = workspace.Folder2;
-                    foreach (var item in workspace.Exclusions)
+                    CurrentWorkspace = Workspace.FromFile(openFileDialog1.FileName);
+                    txtFolder1.Text = CurrentWorkspace.Folder1;
+                    txtFolder2.Text = CurrentWorkspace.Folder2;
+                    foreach (var item in CurrentWorkspace.Exclusions)
                     {
                         lstExclusions.Items.Add(item);
-                    }                   
+                    }
+                    foreach (var item in CurrentWorkspace.ExclusionPatterns)
+                    {
+                        lstPatterns.Items.Add(item);
+                    }
                     break;
                 default:
                     break;
             }
         }
 
-        private void btnSave_Click(object sender, EventArgs e)
+        private void SaveWorkspace(bool prompt)
         {
             if (!Directory.Exists(txtFolder1.Text))
                 MessageBox.Show("The folder in Folder1 does not exist", "Warning!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -50,34 +54,53 @@ namespace SyncFiles
             if (!Directory.Exists(txtFolder2.Text))
                 MessageBox.Show("The folder in Folder2 does not exist", "Warning!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 
-            workspace = new Workspace()
+            CurrentWorkspace = new Workspace()
             {
                 Folder1 = txtFolder1.Text,
                 Folder2 = txtFolder2.Text,
-                Exclusions = new List<string>()
+                Exclusions = new List<string>(),
+                ExclusionPatterns = new List<string>()
             };
             foreach (var item in lstExclusions.Items)
             {
-                workspace.Exclusions.Add(item.ToString());
+                CurrentWorkspace.Exclusions.Add(item.ToString());
+            }
+            foreach (var item in lstPatterns.Items)
+            {
+                CurrentWorkspace.ExclusionPatterns.Add(item.ToString());
             }
 
-            saveFileDialog1.InitialDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            switch (saveFileDialog1.ShowDialog())
+            if (prompt)
             {
-                case DialogResult.OK:
-                case DialogResult.Yes:
-                    workspace.ToFile(saveFileDialog1.FileName);
-                    this.DialogResult = DialogResult.OK;
-                    this.Close();
-                    break;
-                default:
-                    break;
+                saveFileDialog1.InitialDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                switch (saveFileDialog1.ShowDialog())
+                {
+                    case DialogResult.OK:
+                    case DialogResult.Yes:
+                        CurrentWorkspace.ToFile(saveFileDialog1.FileName);
+                        break;
+                    default:
+                        break;
+                }
             }
+            else
+            {
+                CurrentWorkspace.ToFile(openFileDialog1.FileName);
+            }
+        }
+
+        private void btnSave_Click(object sender, EventArgs e)
+        {
+            SaveWorkspace(true);
+            this.DialogResult = DialogResult.Ignore;
+            this.Close();
         }
 
         private void btnSaveUse_Click(object sender, EventArgs e)
         {
-
+            SaveWorkspace(false);
+            this.DialogResult = DialogResult.OK;
+            this.Close();
         }
 
         private void txtExclusion_KeyPress(object sender, KeyPressEventArgs e)
@@ -105,5 +128,29 @@ namespace SyncFiles
             }
         }
 
+        private void txtPattern_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            switch (e.KeyChar)
+            {
+                case '\r':
+                    lstPatterns.Items.Add(txtPattern.Text);
+                    txtPattern.Text = string.Empty;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void lstPatterns_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            switch (e.KeyChar)
+            {
+                case '\b':
+                    lstPatterns.Items.Remove(lstPatterns.SelectedItem);
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 }

@@ -18,11 +18,22 @@ namespace SyncFiles
     public partial class frmMain : Form
     {
         private TraverseTree traverse = new TraverseTree();
-        private BindingListView<FileDiff> view = new BindingListView<FileDiff>(new string[] { });
+        //private BindingListView<FileDiff> view = new BindingListView<FileDiff>(new string[] { });
+        private List<FileDiff> differences = null;
+        private Workspace CurrentWorkspace { get; set; }
 
         public frmMain()
         {
             InitializeComponent();
+        }
+
+        private void frmMain_Load(object sender, EventArgs e)
+        {
+            CurrentWorkspace = Workspace.FromFile("default.json");
+            if (CurrentWorkspace != null)
+            {
+                RefreshWorkspace();
+            }
         }
 
         private void btnFolder1_Click(object sender, EventArgs e)
@@ -65,29 +76,47 @@ namespace SyncFiles
             if (!Directory.Exists(txtFolder2.Text))
                 throw new ApplicationException("Directory does not exist");
 
-            traverse.ExcludeFolders.Add(@"F:\_Western");
-            traverse.ExcludeFolders.Add(@"M:\.Trash-1000");
-            traverse.ExcludeFolders.Add(@"M:\Natallia\Photos\Lightroom\catalog");
+            if (CurrentWorkspace != null)
+            {
+                traverse.ExcludeFolders.AddRange(CurrentWorkspace.Exclusions);
+                traverse.ExcludePatterns.AddRange(CurrentWorkspace.ExclusionPatterns);
+            }
 
             var progressIndicator = new Progress<string>(ReportScanProgress);
             await traverse.Compare(txtFolder1.Text, txtFolder2.Text, progressIndicator);
 
-            List<FileDiff> differences = traverse.Differences;
-            view = new BindingListView<FileDiff>(differences);
-            dataGridView1.DataSource = view;
+            differences = traverse.Differences;
+            //view = new BindingListView<FileDiff>(differences);
+            //dataGridView1.DataSource = view;
 
             lblStatus.Text = string.Format("Scanned {0} directories, {1} differences", traverse.TotalDirectories, traverse.Differences.Count());
 
-            treeSource.Nodes.Add(MakeTreeFromPaths(differences, "Source Files", source: true));
-            treeSource.Sort();
-            //treeSource.ExpandAll();
-
-            treeDestination.Nodes.Add(MakeTreeFromPaths(differences, "Destination Files", source: false));
-            treeDestination.Sort();
-            //treeDestination.ExpandAll();
+            DrawTree(DiffType.Lenght | DiffType.LastWritten | DiffType.ExistInSourceOnly | DiffType.ExistInDestinationOnly);
         }
 
-        private TreeNode MakeTreeFromPaths(List<FileDiff> paths, string rootNodeName = "", char separator = '\\', bool source = true)
+        private void DrawTree(DiffType filter)
+        {
+            treeSource.BeginUpdate();
+            treeDestination.BeginUpdate();
+
+            if (differences != null)
+            {
+                treeSource.Nodes.Clear();
+                treeSource.Nodes.Add(MakeTreeFromPaths(differences, filter, "Source Files", source: true));
+                treeSource.Sort();
+                //treeSource.ExpandAll();
+
+                treeDestination.Nodes.Clear();
+                treeDestination.Nodes.Add(MakeTreeFromPaths(differences, filter, "Destination Files", source: false));
+                treeDestination.Sort();
+                //treeDestination.ExpandAll();
+            }
+
+            treeSource.EndUpdate();
+            treeDestination.EndUpdate();
+        }
+
+        private TreeNode MakeTreeFromPaths(List<FileDiff> paths, DiffType filter, string rootNodeName = "", char separator = '\\', bool source = true)
         {
             var rootNode = new TreeNode(rootNodeName);
             var allpaths = source ? paths.Where(x => x.Source != null) : paths.Where(x => x.Destination != null);
@@ -99,8 +128,12 @@ namespace SyncFiles
                 var lastItem = pathItems.Last();
                 foreach (var item in pathItems)
                 {
+                    //not in the filter omit
+                    if (!filter.HasFlag(path.DifferenceType))
+                        continue;
+
                     var tmp = currentNode.Nodes.Cast<TreeNode>().Where(x => x.Text.Equals(item));
-                    currentNode = tmp.Count() > 0 ? tmp.Single() : currentNode.Nodes.Add(item);
+                    currentNode = tmp.Count() > 0 ? tmp.Single() : currentNode.Nodes.Add(string.Join("\\", pathItems), item);
                     if (lastItem.Equals(item))
                     {
                         if(path.DifferenceType.HasFlag( DiffType.ExistInSourceOnly | DiffType.ExistInDestinationOnly))
@@ -131,13 +164,8 @@ namespace SyncFiles
                 if (viewItem.Checked)
                     selection = selection | (DiffType)int.Parse(viewItem.Tag.ToString());
             }
-
-            view.ApplyFilter(delegate (FileDiff diff) { return selection.HasFlag(diff.DifferenceType); });
-        }
-
-        private void btnSync_Click(object sender, EventArgs e)
-        {
-
+            
+            DrawTree(selection);
         }
 
         private void btnWorkspace_Click(object sender, EventArgs e)
@@ -147,11 +175,34 @@ namespace SyncFiles
             {
                 case DialogResult.OK:
                 case DialogResult.Yes:
-
+                    this.CurrentWorkspace = workspaceForm.CurrentWorkspace;
+                    RefreshWorkspace();
                     break;
                 default:
                     break;
             }
+        }
+
+        private void RefreshWorkspace()
+        {
+            txtFolder1.Text = CurrentWorkspace.Folder1;
+            txtFolder2.Text = CurrentWorkspace.Folder2;
+            txtWorkspace.Text = CurrentWorkspace.WorkspaceName;
+        }
+
+        private void btnSync_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void treeSource_DoubleClick(object sender, EventArgs e)
+        {
+
+        }
+
+        private void treeDestination_DoubleClick(object sender, EventArgs e)
+        {
+
         }
     }
 }

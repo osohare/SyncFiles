@@ -47,7 +47,10 @@ namespace SyncFiles
         /// Folder exclusions configured for the run
         /// </summary>
         public List<string> ExcludeFolders { get; set; }
-
+        /// <summary>
+        /// Exclude items by patterns
+        /// </summary>
+        public List<string> ExcludePatterns { get; set; }
         /// <summary>
         /// Default constructor
         /// </summary>
@@ -55,6 +58,7 @@ namespace SyncFiles
         {
             AllDifferences = new ConcurrentBag<FileDiff>();
             ExcludeFolders = new List<string>();
+            ExcludePatterns = new List<string>();
         }
 
         /// <summary>
@@ -68,6 +72,7 @@ namespace SyncFiles
         {
             await Task.Run(() =>
             {
+                AllDifferences = new ConcurrentBag<FileDiff>();
                 SourceRootFolder = source;
                 DestinationRootFolder = destination;
                 try
@@ -91,28 +96,30 @@ namespace SyncFiles
 
                                 foreach (var item in onlyInSource)
                                 {
-                                    AllDifferences.Add(new FileDiff()
-                                    {
-                                        Source = item,
-                                        Destination = null,
-                                        DifferenceType = DiffType.ExistInSourceOnly,
-                                        ItemType = ItemType.File
-                                    });
+                                    if (!isExclusion(item.FullName))
+                                        AllDifferences.Add(new FileDiff()
+                                        {
+                                            Source = item,
+                                            Destination = null,
+                                            DifferenceType = DiffType.ExistInSourceOnly,
+                                            ItemType = ItemType.File
+                                        });
                                 }
                                 foreach (var item in onlyInDest)
                                 {
-                                    AllDifferences.Add(new FileDiff()
-                                    {
-                                        Source = null,
-                                        Destination = item,
-                                        DifferenceType = DiffType.ExistInDestinationOnly,
-                                        ItemType = ItemType.File
-                                    });
+                                    if (!isExclusion(item.FullName))
+                                        AllDifferences.Add(new FileDiff()
+                                        {
+                                            Source = null,
+                                            Destination = item,
+                                            DifferenceType = DiffType.ExistInDestinationOnly,
+                                            ItemType = ItemType.File
+                                        });
                                 }
                                 foreach (var item in inBothLists)
                                 {
                                     FileInfo destItem = destinationFiles.FirstOrDefault(x => x.Name == item.Name);
-                                    if (!comparer.ExternalCompare(item as FileInfo, destItem))
+                                    if (!isExclusion(item.FullName) && !comparer.ExternalCompare(item as FileInfo, destItem))
                                     {
                                         AllDifferences.Add(new FileDiff()
                                         {
@@ -193,8 +200,9 @@ namespace SyncFiles
                 try
                 {
                     var destinationDirString = TranslateDirectoryPath(sourceDir.FullName);
-                    if (ExcludeFolders.Contains(destinationDirString) || ExcludeFolders.Contains(sourceDir.FullName))
+                    if (isExclusion(destinationDirString) || isExclusion(sourceDir.FullName))
                     {
+                        //This only prevents passing through the directory, but does not prevent adding the item to the list
                         continue;
                     }
                     else if (Directory.Exists(destinationDirString))
@@ -208,23 +216,25 @@ namespace SyncFiles
                         //all exceptions add to list TODO
                         foreach (var item in onlyInSource)
                         {
-                            AllDifferences.Add(new FileDiff()
-                            {
-                                Source = item,
-                                Destination = null,
-                                DifferenceType = DiffType.ExistInSourceOnly,
-                                ItemType = ItemType.Folder
-                            });
+                            if (!isExclusion(item.FullName))
+                                AllDifferences.Add(new FileDiff()
+                                {
+                                    Source = item,
+                                    Destination = null,
+                                    DifferenceType = DiffType.ExistInSourceOnly,
+                                    ItemType = ItemType.Folder
+                                });
                         }
                         foreach (var item in onlyInDest)
                         {
-                            AllDifferences.Add(new FileDiff()
-                            {
-                                Source = null,
-                                Destination = item,
-                                DifferenceType = DiffType.ExistInDestinationOnly,
-                                ItemType = ItemType.Folder
-                            });
+                            if (!isExclusion(item.FullName))
+                                AllDifferences.Add(new FileDiff()
+                                {
+                                    Source = null,
+                                    Destination = item,
+                                    DifferenceType = DiffType.ExistInDestinationOnly,
+                                    ItemType = ItemType.Folder
+                                });
                         }
 
                         //only navigate what exists in both
@@ -289,6 +299,18 @@ namespace SyncFiles
                 }
             }
             TotalDirectories = directoryCount;
+        }
+
+        private bool isExclusion(string path)
+        {
+            if (ExcludeFolders.Contains(path))
+                return true;
+            foreach (var item in ExcludePatterns)
+            {
+                if (path.Contains(item))
+                    return true;
+            }
+            return false;
         }
 
     }
