@@ -1,5 +1,6 @@
 ﻿using Equin.ApplicationFramework;
 using SyncFiles.Checksum;
+using SyncFiles.Infrastructure;
 using SyncFiles.Models;
 using System;
 using System.Collections.Concurrent;
@@ -192,7 +193,22 @@ namespace SyncFiles
 
         private void btnSync_Click(object sender, EventArgs e)
         {
+            //Apply addler32 to files, if the same equal their last write timestamp
+            //CATCH the mp3 headers might vary, even when content is the same; choose to ignore if filesize is the same
+            var allDiffs = differences.Where(
+                                x => x.DifferenceType == DiffType.LastWritten 
+                                && x.ItemType == ItemType.File 
+                                && !x.Source.Extension.ToUpper().Equals(".MP3")
+                           );
 
+            foreach (var diff in allDiffs)
+            {
+                FileCompare compare = new FileCompare();
+                if (compare.ExternalCompareByHash(diff.Source as FileInfo, diff.Destination as FileInfo))
+                {
+                    diff.Destination.LastWriteTimeUtc = diff.Source.LastWriteTimeUtc;
+                }
+            }
         }
 
         private void treeSource_DoubleClick(object sender, EventArgs e)

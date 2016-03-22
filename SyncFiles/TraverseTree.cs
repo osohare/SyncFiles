@@ -121,11 +121,20 @@ namespace SyncFiles
                                     FileInfo destItem = destinationFiles.FirstOrDefault(x => x.Name == item.Name);
                                     if (!isExclusion(item.FullName) && !comparer.ExternalCompare(item as FileInfo, destItem))
                                     {
+                                        var itemFile = item as FileInfo;
+                                        DiffType type = DiffType.None;
+
+                                        if (!itemFile.LastWriteTimeUtc.ToString("yyyyMMMddHHmmss").Equals(destItem.LastWriteTimeUtc.ToString("yyyyMMMddHHmmss")))
+                                            type = DiffType.LastWritten;
+
+                                        if (!itemFile.Length.Equals(destItem.Length))
+                                            type = DiffType.Lenght;
+
                                         AllDifferences.Add(new FileDiff()
                                         {
                                             Source = item,
                                             Destination = destItem,
-                                            DifferenceType = item.LastWriteTimeUtc.Equals(destItem.LastWriteTimeUtc) ? DiffType.Lenght : DiffType.LastWritten,
+                                            DifferenceType = type,
                                             ItemType = ItemType.File
                                         });
                                     }

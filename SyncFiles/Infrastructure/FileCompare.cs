@@ -29,7 +29,7 @@ namespace SyncFiles.Infrastructure
         {
             return (f1.Name == f2.Name 
                     && f1.Length == f2.Length
-                    && f1.LastWriteTimeUtc == f2.LastWriteTimeUtc);
+                    && f1.LastWriteTimeUtc.ToString("yyyyMMMddHHmmss").Equals(f2.LastWriteTimeUtc.ToString("yyyyMMMddHHmmss")));
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace SyncFiles.Infrastructure
         /// <returns></returns>
         public int GetHashCode(FileInfo fi)
         {
-            string s = String.Format("{0}{1}{2}", fi.Name, fi.Length, fi.LastWriteTimeUtc);
+            string s = String.Format("{0}{1}{2}", fi.Name, fi.Length, fi.LastWriteTimeUtc.ToString("yyyyMMMddHHmmss"));
             return s.GetHashCode();
         }
     }
